@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-white text-slate-900 antialiased;
+    @apply dark:bg-slate-950 dark:text-slate-100;
+    font-feature-settings: 'kern', 'liga';
+  }
+
+  /* Arabic font tweak */
+  html[lang='ar'] body {
+    font-family:
+      -apple-system,
+      'SF Arabic',
+      'Geeza Pro',
+      'Tahoma',
+      'Arial',
+      sans-serif;
+  }
+
+  /* Bigger tap targets on mobile */
+  button,
+  [role='button'] {
+    touch-action: manipulation;
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  .safe-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+}

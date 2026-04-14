@@ -1,0 +1,74 @@
+{
+  "metadata": {
+    "title": "nanoPDF — Free & Fast PDF Compression",
+    "description": "Compress PDF files from your phone. Free, fast, no signup. Up to 50MB per file."
+  },
+  "common": {
+    "appName": "nanoPDF",
+    "tagline": "Fast PDF tools for mobile",
+    "back": "Back",
+    "download": "Download",
+    "tryAgain": "Try again",
+    "processing": "Processing…",
+    "uploading": "Uploading…",
+    "done": "Done",
+    "clear": "Clear",
+    "reset": "Reset",
+    "privacy": "Privacy Policy"
+  },
+  "home": {
+    "heroTitle": "Lightweight, fast PDF tools",
+    "heroSubtitle": "Compress PDFs, convert images to PDF — right from your phone browser. No signup.",
+    "compressCardTitle": "Compress PDF",
+    "compressCardDescription": "Reduce PDF file size while keeping quality. Three levels to choose from.",
+    "imageToPdfCardTitle": "Images to PDF",
+    "imageToPdfCardDescription": "Convert JPG and PNG images into a single PDF in seconds.",
+    "open": "Open tool",
+    "feature1": "Mobile-friendly",
+    "feature2": "No signup",
+    "feature3": "Fast & free"
+  },
+  "compress": {
+    "title": "Compress PDF files",
+    "subtitle": "Drop files here or tap to choose. Up to 5 files, 50MB each.",
+    "dropzoneIdle": "Tap here or drop PDF files",
+    "dropzoneActive": "Drop the files here",
+    "levelTitle": "Choose compression level",
+    "levelLow": "High quality",
+    "levelLowDesc": "Light compression, best quality",
+    "levelMedium": "Balanced",
+    "levelMediumDesc": "Balance between quality and size",
+    "levelHigh": "Smallest size",
+    "levelHighDesc": "Smallest file size",
+    "compressButton": "Compress now",
+    "resultTitle": "Result",
+    "originalSize": "Original size",
+    "newSize": "New size",
+    "reduction": "Reduction",
+    "errorTooLarge": "File exceeds 50MB",
+    "errorTooMany": "Maximum of 5 files",
+    "errorWrongType": "Only PDF files accepted",
+    "errorNetwork": "Network error, please retry",
+    "errorGeneric": "Something went wrong during compression"
+  },
+  "imageToPdf": {
+    "title": "Convert images to PDF",
+    "subtitle": "Pick JPG or PNG images and we'll merge them into one PDF.",
+    "dropzoneIdle": "Tap here or drop images",
+    "dropzoneActive": "Drop the images here",
+    "pageSizeTitle": "Page size",
+    "pageSizeA4": "A4",
+    "pageSizeLetter": "Letter",
+    "orientationTitle": "Orientation",
+    "orientationPortrait": "Portrait",
+    "orientationLandscape": "Landscape",
+    "convertButton": "Convert to PDF",
+    "errorTooMany": "Maximum of 10 images",
+    "errorWrongType": "Only JPG and PNG accepted",
+    "errorGeneric": "Something went wrong during conversion"
+  },
+  "footer": {
+    "madeWith": "Crafted for mobile",
+    "copyright": "© 2026 nanoPDF"
+  }
+}

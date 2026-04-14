@@ -1,0 +1,74 @@
+{
+  "metadata": {
+    "title": "nanoPDF — ضغط PDF مجاني وسريع",
+    "description": "اضغط ملفات PDF بسهولة من جوالك. مجاني، سريع، وبدون تسجيل. حتى 50 ميجابايت لكل ملف."
+  },
+  "common": {
+    "appName": "nanoPDF",
+    "tagline": "أدوات PDF سريعة للجوال",
+    "back": "رجوع",
+    "download": "تحميل",
+    "tryAgain": "حاول مرة أخرى",
+    "processing": "جارٍ المعالجة…",
+    "uploading": "جارٍ الرفع…",
+    "done": "انتهى",
+    "clear": "مسح",
+    "reset": "إعادة تعيين",
+    "privacy": "سياسة الخصوصية"
+  },
+  "home": {
+    "heroTitle": "أدوات PDF خفيفة وسريعة",
+    "heroSubtitle": "اضغط PDF، حوّل الصور إلى PDF — كل شيء من متصفح جوالك. بدون تسجيل.",
+    "compressCardTitle": "ضغط PDF",
+    "compressCardDescription": "قلّل حجم ملفات PDF مع الحفاظ على الجودة. ثلاثة مستويات للاختيار.",
+    "imageToPdfCardTitle": "صورة إلى PDF",
+    "imageToPdfCardDescription": "حوّل صور JPG وPNG إلى ملف PDF واحد في ثوانٍ.",
+    "open": "افتح الأداة",
+    "feature1": "يعمل من الجوال",
+    "feature2": "بدون تسجيل",
+    "feature3": "سريع ومجاني"
+  },
+  "compress": {
+    "title": "ضغط ملفات PDF",
+    "subtitle": "اسحب ملفاتك أو انقر لاختيارها. حتى 5 ملفات، 50 ميجابايت لكل ملف.",
+    "dropzoneIdle": "اضغط هنا أو اسحب ملفات PDF",
+    "dropzoneActive": "أفلت الملفات هنا",
+    "levelTitle": "اختر مستوى الضغط",
+    "levelLow": "جودة عالية",
+    "levelLowDesc": "ضغط خفيف، أفضل جودة",
+    "levelMedium": "متوازن",
+    "levelMediumDesc": "توازن بين الجودة والحجم",
+    "levelHigh": "حجم أصغر",
+    "levelHighDesc": "أصغر حجم ممكن",
+    "compressButton": "اضغط الآن",
+    "resultTitle": "النتيجة",
+    "originalSize": "الحجم الأصلي",
+    "newSize": "الحجم الجديد",
+    "reduction": "نسبة التخفيض",
+    "errorTooLarge": "الملف أكبر من 50 ميجابايت",
+    "errorTooMany": "الحد الأقصى 5 ملفات",
+    "errorWrongType": "يُقبل PDF فقط",
+    "errorNetwork": "فشل الاتصال، حاول مرة أخرى",
+    "errorGeneric": "حدث خطأ أثناء الضغط"
+  },
+  "imageToPdf": {
+    "title": "تحويل الصور إلى PDF",
+    "subtitle": "اختر صور JPG أو PNG وسنحوّلها إلى ملف PDF واحد.",
+    "dropzoneIdle": "اضغط هنا أو اسحب الصور",
+    "dropzoneActive": "أفلت الصور هنا",
+    "pageSizeTitle": "حجم الصفحة",
+    "pageSizeA4": "A4",
+    "pageSizeLetter": "Letter",
+    "orientationTitle": "الاتجاه",
+    "orientationPortrait": "عمودي",
+    "orientationLandscape": "أفقي",
+    "convertButton": "حوّل إلى PDF",
+    "errorTooMany": "الحد الأقصى 10 صور",
+    "errorWrongType": "يُقبل JPG وPNG فقط",
+    "errorGeneric": "حدث خطأ أثناء التحويل"
+  },
+  "footer": {
+    "madeWith": "صُنع بعناية للجوال",
+    "copyright": "© 2026 nanoPDF"
+  }
+}
