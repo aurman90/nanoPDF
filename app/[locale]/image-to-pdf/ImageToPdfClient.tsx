@@ -33,6 +33,8 @@ export function ImageToPdfClient() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
+  const [uploadPct, setUploadPct] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const addFiles = (incoming: File[]) => {
     setError(null);
@@ -61,21 +63,32 @@ export function ImageToPdfClient() {
     setResult(null);
     setPhase('idle');
     setError(null);
+    setUploadPct(0);
+    setCurrentIndex(0);
   };
 
   const onConvert = async () => {
     if (files.length === 0) return;
     setError(null);
     setResult(null);
+    setUploadPct(0);
+    setCurrentIndex(0);
     setPhase('uploading');
 
     try {
       const uploaded: { url: string; name: string; type: string }[] = [];
-      for (const f of files) {
-        const blob = await upload(`uploads/img-${Date.now()}-${f.name}`, f, {
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        setCurrentIndex(i);
+        setUploadPct(0);
+        const safeName = f.name.replace(/[^\w.\-]+/g, '_');
+        const blob = await upload(`uploads/img-${Date.now()}-${safeName}`, f, {
           access: 'public',
           handleUploadUrl: '/api/upload',
-          contentType: f.type,
+          multipart: true,
+          onUploadProgress: ({ percentage }) => {
+            setUploadPct(Math.round(percentage));
+          },
         });
         uploaded.push({ url: blob.url, name: f.name, type: f.type });
       }
@@ -168,11 +181,19 @@ export function ImageToPdfClient() {
                   <FileDown className="h-5 w-5" aria-hidden />
                 )}
                 {phase === 'uploading'
-                  ? tc('uploading')
+                  ? `${tc('uploading')} ${files.length > 1 ? `${currentIndex + 1}/${files.length} · ` : ''}${uploadPct}%`
                   : phase === 'processing'
                     ? tc('processing')
                     : t('convertButton')}
               </button>
+              {phase === 'uploading' && (
+                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                  <div
+                    className="h-full rounded-full bg-emerald-600 transition-[width] duration-200"
+                    style={{ width: `${uploadPct}%` }}
+                  />
+                </div>
+              )}
             </>
           )}
         </>

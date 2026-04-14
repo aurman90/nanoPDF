@@ -28,6 +28,8 @@ export function CompressClient() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<CompressResult[]>([]);
+  const [uploadPct, setUploadPct] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const addFiles = (incoming: File[]) => {
     setError(null);
@@ -59,22 +61,37 @@ export function CompressClient() {
     setResults([]);
     setPhase('idle');
     setError(null);
+    setUploadPct(0);
+    setCurrentIndex(0);
   };
 
   const onCompress = async () => {
     if (files.length === 0) return;
     setError(null);
     setResults([]);
+    setUploadPct(0);
+    setCurrentIndex(0);
     setPhase('uploading');
 
     try {
-      // 1. Upload every file directly to Vercel Blob (bypasses serverless body limit).
+      // 1. Upload every file directly to Vercel Blob.
+      //    - multipart: splits large files into 5MB chunks, uploads in parallel, retries failed parts.
+      //      Critical on mobile networks where a single-shot PUT of a 20-50MB file often stalls.
+      //    - onUploadProgress: shows live percentage so user doesn't see a frozen "Uploading…".
       const uploaded: { url: string; name: string; size: number }[] = [];
-      for (const f of files) {
-        const blob = await upload(`uploads/${Date.now()}-${f.name}`, f, {
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        setCurrentIndex(i);
+        setUploadPct(0);
+        // Sanitize filename: strip non-ASCII chars that could cause signed-URL issues.
+        const safeName = f.name.replace(/[^\w.\-]+/g, '_');
+        const blob = await upload(`uploads/${Date.now()}-${safeName}`, f, {
           access: 'public',
           handleUploadUrl: '/api/upload',
-          contentType: 'application/pdf',
+          multipart: true,
+          onUploadProgress: ({ percentage }) => {
+            setUploadPct(Math.round(percentage));
+          },
         });
         uploaded.push({ url: blob.url, name: f.name, size: f.size });
       }
@@ -143,11 +160,19 @@ export function CompressClient() {
                   <Sparkles className="h-5 w-5" aria-hidden />
                 )}
                 {phase === 'uploading'
-                  ? tc('uploading')
+                  ? `${tc('uploading')} ${files.length > 1 ? `${currentIndex + 1}/${files.length} · ` : ''}${uploadPct}%`
                   : phase === 'processing'
                     ? tc('processing')
                     : t('compressButton')}
               </button>
+              {phase === 'uploading' && (
+                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                  <div
+                    className="h-full rounded-full bg-brand-600 transition-[width] duration-200"
+                    style={{ width: `${uploadPct}%` }}
+                  />
+                </div>
+              )}
             </>
           )}
         </>
