@@ -1,19 +1,58 @@
-import { PDFDocument, PDFName, PDFRawStream, PDFDict, PDFArray } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFRawStream, PDFArray } from 'pdf-lib';
 import sharp from 'sharp';
 import { CompressionLevel, QUALITY_PRESETS } from './constants';
+import { compressWithGhostscript } from './pdf-compress-gs';
 
 /**
- * Compress a PDF by:
- *  1. Re-encoding embedded JPEG images at a lower quality via sharp
- *  2. Saving with object streams enabled (structural compression)
+ * Main compression entry point.
  *
- * Notes:
- *  - Only recompresses images stored as DCTDecode (JPEG). PNG/Flate images
- *    are left untouched to avoid losing transparency or causing visual artifacts.
- *  - Text-heavy PDFs will see limited gains (which is expected — they're
- *    already compressed). Image-heavy PDFs benefit the most.
+ * Strategy:
+ *   1. Try Ghostscript — handles text, vectors, all image types, font
+ *      subsetting, content stream re-encoding. Gives real compression
+ *      even on text-heavy PDFs.
+ *   2. On any GS failure (missing binary locally, timeout, non-zero exit,
+ *      encrypted PDF, …) fall back to the pdf-lib + sharp path. It only
+ *      recompresses embedded JPEG images, but it keeps the feature working
+ *      on macOS dev and on Hobby timeouts.
+ *
+ * The caller in app/api/compress/route.ts already compares the returned
+ * length against the original and returns whichever is smaller, so we
+ * don't need that comparison here.
  */
 export async function compressPdf(
+  input: Uint8Array,
+  level: CompressionLevel,
+): Promise<Uint8Array> {
+  try {
+    const gsOutput = await compressWithGhostscript(input, level);
+    const pct = input.length
+      ? (((input.length - gsOutput.length) / input.length) * 100).toFixed(1)
+      : '0';
+    console.log(
+      `[compress] GS succeeded: ${input.length} → ${gsOutput.length} bytes (${pct}% reduction)`,
+    );
+    return gsOutput;
+  } catch (err) {
+    console.warn(
+      '[compress] GS failed, falling back to pdf-lib:',
+      err instanceof Error ? err.message : String(err),
+    );
+  }
+
+  return compressWithPdfLib(input, level);
+}
+
+/**
+ * Fallback compression: recompress embedded JPEG images via sharp and save
+ * with object streams. This is the original implementation, retained for:
+ *   - Local macOS dev without a usable Linux-only gs binary
+ *   - Vercel Hobby timeouts on huge PDFs
+ *   - Any unexpected Ghostscript failure
+ *
+ * Only handles DCTDecode (JPEG) images — text-heavy PDFs see near-zero
+ * reduction through this path.
+ */
+async function compressWithPdfLib(
   input: Uint8Array,
   level: CompressionLevel,
 ): Promise<Uint8Array> {
@@ -24,7 +63,6 @@ export async function compressPdf(
     ignoreEncryption: true,
   });
 
-  // Strip metadata to shave a few bytes.
   pdfDoc.setTitle('');
   pdfDoc.setAuthor('');
   pdfDoc.setSubject('');
@@ -32,7 +70,6 @@ export async function compressPdf(
   pdfDoc.setProducer('nanoPDF');
   pdfDoc.setCreator('nanoPDF');
 
-  // Walk all indirect objects, find image XObjects with DCTDecode filter.
   const indirectObjects = pdfDoc.context.enumerateIndirectObjects();
 
   for (const [ref, obj] of indirectObjects) {
@@ -59,15 +96,12 @@ export async function compressPdf(
       const originalHeight = metadata.height ?? 0;
       if (!originalWidth || !originalHeight) continue;
 
-      // Downscale if larger than maxDimension
       let pipeline = image;
       const maxDim = Math.max(originalWidth, originalHeight);
       if (maxDim > preset.maxDimension) {
         pipeline = pipeline.resize({
           width:
-            originalWidth >= originalHeight
-              ? preset.maxDimension
-              : undefined,
+            originalWidth >= originalHeight ? preset.maxDimension : undefined,
           height:
             originalHeight > originalWidth ? preset.maxDimension : undefined,
           fit: 'inside',
@@ -83,10 +117,8 @@ export async function compressPdf(
         })
         .toBuffer({ resolveWithObject: true });
 
-      // Only replace if it's actually smaller.
       if (compressed.data.length >= jpegBytes.length) continue;
 
-      // Build a replacement raw stream with the same dict but new bytes + new dimensions.
       const newDict = dict.clone();
       newDict.set(PDFName.of('Width'), pdfDoc.context.obj(compressed.info.width));
       newDict.set(PDFName.of('Height'), pdfDoc.context.obj(compressed.info.height));
@@ -97,15 +129,10 @@ export async function compressPdf(
       const newStream = PDFRawStream.of(newDict, compressed.data);
       pdfDoc.context.assign(ref, newStream);
     } catch {
-      // If sharp fails on an unusual JPEG, leave the original image in place.
+      // If sharp fails on an unusual JPEG, leave the original image.
       continue;
     }
   }
 
-  const output = await pdfDoc.save({
-    useObjectStreams: true,
-    addDefaultPage: false,
-  });
-
-  return output;
+  return pdfDoc.save({ useObjectStreams: true, addDefaultPage: false });
 }

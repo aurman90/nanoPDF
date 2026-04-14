@@ -1,0 +1,5 @@
+bin/gs binary
+bin/gs filter=
+bin/gs diff=
+bin/gs merge=
+bin/gs -text
