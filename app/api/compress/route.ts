@@ -2,12 +2,16 @@ import { NextResponse } from 'next/server';
 import { put, del } from '@vercel/blob';
 import { compressPdf } from '@/lib/pdf-compress';
 import type { CompressionLevel } from '@/lib/constants';
+import {
+  assertUploadPathname,
+  readUploadedBlobBytes,
+} from '@/lib/blob-storage';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60; // seconds — requires Vercel Pro for >10s
 
 interface RequestBody {
-  files: { url: string; name: string; size: number }[];
+  files: { pathname: string; name: string; size: number }[];
   level: CompressionLevel;
 }
 
@@ -37,10 +41,8 @@ export async function POST(request: Request) {
 
   for (const file of body.files) {
     try {
-      // Fetch the uploaded blob into memory.
-      const res = await fetch(file.url);
-      if (!res.ok) throw new Error(`fetch-blob-failed:${res.status}`);
-      const bytes = new Uint8Array(await res.arrayBuffer());
+      const pathname = assertUploadPathname(file.pathname);
+      const bytes = await readUploadedBlobBytes(pathname);
 
       // Run through the compressor.
       const compressed = await compressPdf(bytes, body.level);
@@ -62,7 +64,7 @@ export async function POST(request: Request) {
       );
 
       // Remove the original uploaded blob — we don't need it anymore.
-      del(file.url).catch(() => {});
+      del(pathname).catch(() => {});
 
       results.push({
         name: outName,
@@ -72,9 +74,15 @@ export async function POST(request: Request) {
       });
     } catch (err) {
       console.error('compress-error', err);
+      const invalidUploadPath =
+        err instanceof Error && err.message === 'invalid-upload-path';
+
       return NextResponse.json(
-        { error: 'compression-failed', detail: String(err) },
-        { status: 500 },
+        {
+          error: invalidUploadPath ? 'invalid-upload-path' : 'compression-failed',
+          detail: String(err),
+        },
+        { status: invalidUploadPath ? 400 : 500 },
       );
     }
   }

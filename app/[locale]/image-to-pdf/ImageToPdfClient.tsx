@@ -48,7 +48,10 @@ export function ImageToPdfClient() {
         setError(t('errorWrongType'));
         continue;
       }
-      if (f.size > MAX_FILE_SIZE) continue;
+      if (f.size > MAX_FILE_SIZE) {
+        setError(t('errorTooLarge'));
+        continue;
+      }
       next.push(f);
     }
     setFiles(next);
@@ -76,7 +79,7 @@ export function ImageToPdfClient() {
     setPhase('uploading');
 
     try {
-      const uploaded: { url: string; name: string; type: string }[] = [];
+      const uploaded: { pathname: string; name: string; type: string }[] = [];
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
         setCurrentIndex(i);
@@ -90,7 +93,7 @@ export function ImageToPdfClient() {
             setUploadPct(Math.round(percentage));
           },
         });
-        uploaded.push({ url: blob.url, name: f.name, type: f.type });
+        uploaded.push({ pathname: blob.pathname, name: f.name, type: f.type });
       }
 
       setPhase('processing');

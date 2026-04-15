@@ -53,7 +53,7 @@
   },
   "imageToPdf": {
     "title": "تحويل الصور إلى PDF",
-    "subtitle": "اختر صور JPG أو PNG وسنحوّلها إلى ملف PDF واحد.",
+    "subtitle": "اختر صور JPG أو PNG أو WEBP وسنحوّلها إلى ملف PDF واحد.",
     "dropzoneIdle": "اضغط هنا أو اسحب الصور",
     "dropzoneActive": "أفلت الصور هنا",
     "pageSizeTitle": "حجم الصفحة",
@@ -64,7 +64,8 @@
     "orientationLandscape": "أفقي",
     "convertButton": "حوّل إلى PDF",
     "errorTooMany": "الحد الأقصى 10 صور",
-    "errorWrongType": "يُقبل JPG وPNG فقط",
+    "errorTooLarge": "الصورة أكبر من 50 ميجابايت",
+    "errorWrongType": "يُقبل JPG وPNG وWEBP فقط",
     "errorGeneric": "حدث خطأ أثناء التحويل"
   },
   "footer": {

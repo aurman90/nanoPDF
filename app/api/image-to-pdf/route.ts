@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
 import { put, del } from '@vercel/blob';
 import { imagesToPdf, type PageSize, type Orientation } from '@/lib/image-to-pdf';
+import {
+  assertUploadPathname,
+  readUploadedBlobBytes,
+} from '@/lib/blob-storage';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 interface RequestBody {
-  files: { url: string; name: string; type: string }[];
+  files: { pathname: string; name: string; type: string }[];
   pageSize: PageSize;
   orientation: Orientation;
 }
@@ -24,21 +28,22 @@ export async function POST(request: Request) {
   }
 
   try {
-    const images = await Promise.all(
-      body.files.map(async (f) => {
-        const res = await fetch(f.url);
-        if (!res.ok) throw new Error(`fetch-blob-failed:${res.status}`);
-        return {
-          bytes: new Uint8Array(await res.arrayBuffer()),
-          mimeType: f.type,
-        };
-      }),
-    );
+    const pdfBytes = await imagesToPdf(
+      (async function* () {
+        for (const file of body.files) {
+          const pathname = assertUploadPathname(file.pathname);
 
-    const pdfBytes = await imagesToPdf(images, {
-      pageSize: body.pageSize ?? 'A4',
-      orientation: body.orientation ?? 'portrait',
-    });
+          yield {
+            bytes: await readUploadedBlobBytes(pathname),
+            mimeType: file.type,
+          };
+        }
+      })(),
+      {
+        pageSize: body.pageSize ?? 'A4',
+        orientation: body.orientation ?? 'portrait',
+      },
+    );
 
     const outName = `images-${Date.now()}.pdf`;
     const outBlob = await put(
@@ -53,7 +58,9 @@ export async function POST(request: Request) {
 
     // Clean up originals.
     await Promise.all(
-      body.files.map((f) => del(f.url).catch(() => {})),
+      body.files.map((f) =>
+        del(assertUploadPathname(f.pathname)).catch(() => {}),
+      ),
     );
 
     return NextResponse.json({
@@ -63,9 +70,15 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     console.error('image-to-pdf-error', err);
+    const invalidUploadPath =
+      err instanceof Error && err.message === 'invalid-upload-path';
+
     return NextResponse.json(
-      { error: 'conversion-failed', detail: String(err) },
-      { status: 500 },
+      {
+        error: invalidUploadPath ? 'invalid-upload-path' : 'conversion-failed',
+        detail: String(err),
+      },
+      { status: invalidUploadPath ? 400 : 500 },
     );
   }
 }

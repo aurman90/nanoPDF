@@ -53,7 +53,7 @@
   },
   "imageToPdf": {
     "title": "Convert images to PDF",
-    "subtitle": "Pick JPG or PNG images and we'll merge them into one PDF.",
+    "subtitle": "Pick JPG, PNG, or WEBP images and we'll merge them into one PDF.",
     "dropzoneIdle": "Tap here or drop images",
     "dropzoneActive": "Drop the images here",
     "pageSizeTitle": "Page size",
@@ -64,7 +64,8 @@
     "orientationLandscape": "Landscape",
     "convertButton": "Convert to PDF",
     "errorTooMany": "Maximum of 10 images",
-    "errorWrongType": "Only JPG and PNG accepted",
+    "errorTooLarge": "Image exceeds 50MB",
+    "errorWrongType": "Only JPG, PNG, and WEBP accepted",
     "errorGeneric": "Something went wrong during conversion"
   },
   "footer": {

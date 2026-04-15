@@ -78,7 +78,7 @@ export function CompressClient() {
       //    - multipart: splits large files into 5MB chunks, uploads in parallel, retries failed parts.
       //      Critical on mobile networks where a single-shot PUT of a 20-50MB file often stalls.
       //    - onUploadProgress: shows live percentage so user doesn't see a frozen "Uploading…".
-      const uploaded: { url: string; name: string; size: number }[] = [];
+      const uploaded: { pathname: string; name: string; size: number }[] = [];
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
         setCurrentIndex(i);
@@ -93,7 +93,7 @@ export function CompressClient() {
             setUploadPct(Math.round(percentage));
           },
         });
-        uploaded.push({ url: blob.url, name: f.name, size: f.size });
+        uploaded.push({ pathname: blob.pathname, name: f.name, size: f.size });
       }
 
       // 2. Ask server to compress each uploaded blob.

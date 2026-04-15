@@ -15,7 +15,7 @@ interface ImageInput {
 }
 
 export async function imagesToPdf(
-  images: ImageInput[],
+  images: Iterable<ImageInput> | AsyncIterable<ImageInput>,
   options: ImageToPdfOptions,
 ): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
@@ -24,7 +24,7 @@ export async function imagesToPdf(
   const [pageW, pageH] =
     options.orientation === 'landscape' ? [baseDims[1], baseDims[0]] : baseDims;
 
-  for (const image of images) {
+  for await (const image of images) {
     // Normalize everything to JPEG to avoid PNG alpha issues and shrink payload.
     const jpegBytes = await sharp(Buffer.from(image.bytes))
       .flatten({ background: { r: 255, g: 255, b: 255 } })
