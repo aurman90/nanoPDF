@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { InstallPrompt } from '@/components/InstallPrompt';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -50,6 +51,7 @@ export default async function LocaleLayout({
           <Header />
           <main className="flex-1 w-full">{children}</main>
           <Footer />
+          <InstallPrompt />
         </NextIntlClientProvider>
       </body>
     </html>

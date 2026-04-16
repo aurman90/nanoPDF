@@ -3,20 +3,18 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { upload } from '@vercel/blob/client';
-import { Loader2, FileDown, AlertCircle, Download } from 'lucide-react';
+import { Loader2, Layers, AlertCircle, Download } from 'lucide-react';
 import { FileDropzone } from '@/components/FileDropzone';
 import { FileList } from '@/components/FileList';
 import { AutoDeleteNotice } from '@/components/AutoDeleteNotice';
 import {
-  ACCEPTED_IMAGE_MIMES,
   MAX_FILE_SIZE,
-  MAX_IMAGES,
+  MAX_MERGE_FILES,
+  ACCEPTED_PDF_MIME,
   formatBytes,
 } from '@/lib/constants';
 
 type Phase = 'idle' | 'uploading' | 'processing' | 'done' | 'error';
-type PageSize = 'A4' | 'Letter';
-type Orientation = 'portrait' | 'landscape';
 
 interface Result {
   name: string;
@@ -24,13 +22,11 @@ interface Result {
   downloadUrl: string;
 }
 
-export function ImageToPdfClient() {
-  const t = useTranslations('imageToPdf');
+export function MergeClient() {
+  const t = useTranslations('merge');
   const tc = useTranslations('common');
 
   const [files, setFiles] = useState<File[]>([]);
-  const [pageSize, setPageSize] = useState<PageSize>('A4');
-  const [orientation, setOrientation] = useState<Orientation>('portrait');
   const [phase, setPhase] = useState<Phase>('idle');
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
@@ -41,16 +37,16 @@ export function ImageToPdfClient() {
     setError(null);
     const next = [...files];
     for (const f of incoming) {
-      if (next.length >= MAX_IMAGES) {
+      if (next.length >= MAX_MERGE_FILES) {
         setError(t('errorTooMany'));
         break;
       }
-      if (!ACCEPTED_IMAGE_MIMES.includes(f.type)) {
-        setError(t('errorWrongType'));
-        continue;
-      }
       if (f.size > MAX_FILE_SIZE) {
         setError(t('errorTooLarge'));
+        continue;
+      }
+      if (f.type !== ACCEPTED_PDF_MIME && !f.name.toLowerCase().endsWith('.pdf')) {
+        setError(t('errorWrongType'));
         continue;
       }
       next.push(f);
@@ -58,9 +54,7 @@ export function ImageToPdfClient() {
     setFiles(next);
   };
 
-  const removeAt = (index: number) => {
-    setFiles(files.filter((_, i) => i !== index));
-  };
+  const removeAt = (index: number) => setFiles(files.filter((_, i) => i !== index));
 
   const reset = () => {
     setFiles([]);
@@ -71,8 +65,11 @@ export function ImageToPdfClient() {
     setCurrentIndex(0);
   };
 
-  const onConvert = async () => {
-    if (files.length === 0) return;
+  const onMerge = async () => {
+    if (files.length < 2) {
+      setError(t('errorMinFiles'));
+      return;
+    }
     setError(null);
     setResult(null);
     setUploadPct(0);
@@ -80,31 +77,28 @@ export function ImageToPdfClient() {
     setPhase('uploading');
 
     try {
-      const uploaded: { pathname: string; name: string; type: string }[] = [];
+      const uploaded: { url: string; name: string; size: number }[] = [];
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
         setCurrentIndex(i);
         setUploadPct(0);
         const safeName = f.name.replace(/[^\w.\-]+/g, '_');
-        const blob = await upload(`uploads/img-${Date.now()}-${safeName}`, f, {
+        const blob = await upload(`uploads/${Date.now()}-${safeName}`, f, {
           access: 'public',
           handleUploadUrl: '/api/upload',
           multipart: true,
-          onUploadProgress: ({ percentage }) => {
-            setUploadPct(Math.round(percentage));
-          },
+          onUploadProgress: ({ percentage }) => setUploadPct(Math.round(percentage)),
         });
-        uploaded.push({ pathname: blob.pathname, name: f.name, type: f.type });
+        uploaded.push({ url: blob.url, name: f.name, size: f.size });
       }
 
       setPhase('processing');
-      const res = await fetch('/api/image-to-pdf', {
+      const res = await fetch('/api/merge', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ files: uploaded, pageSize, orientation }),
+        body: JSON.stringify({ files: uploaded }),
       });
-
-      if (!res.ok) throw new Error('convert-failed');
+      if (!res.ok) throw new Error('merge-failed');
       const data = (await res.json()) as Result;
       setResult(data);
       setPhase('done');
@@ -122,12 +116,8 @@ export function ImageToPdfClient() {
       {phase !== 'done' && (
         <>
           <FileDropzone
-            accept={{
-              'image/jpeg': ['.jpg', '.jpeg'],
-              'image/png': ['.png'],
-              'image/webp': ['.webp'],
-            }}
-            maxFiles={MAX_IMAGES}
+            accept={{ 'application/pdf': ['.pdf'] }}
+            maxFiles={MAX_MERGE_FILES}
             maxSize={MAX_FILE_SIZE}
             idleLabel={t('dropzoneIdle')}
             activeLabel={t('dropzoneActive')}
@@ -138,63 +128,27 @@ export function ImageToPdfClient() {
 
           {files.length > 0 && (
             <>
-              <section>
-                <h2 className="mb-2 text-sm font-bold text-slate-900 dark:text-slate-50">
-                  {t('pageSizeTitle')}
-                </h2>
-                <div className="grid grid-cols-2 gap-2">
-                  <ToggleBtn
-                    active={pageSize === 'A4'}
-                    onClick={() => setPageSize('A4')}
-                    label={t('pageSizeA4')}
-                  />
-                  <ToggleBtn
-                    active={pageSize === 'Letter'}
-                    onClick={() => setPageSize('Letter')}
-                    label={t('pageSizeLetter')}
-                  />
-                </div>
-              </section>
-
-              <section>
-                <h2 className="mb-2 text-sm font-bold text-slate-900 dark:text-slate-50">
-                  {t('orientationTitle')}
-                </h2>
-                <div className="grid grid-cols-2 gap-2">
-                  <ToggleBtn
-                    active={orientation === 'portrait'}
-                    onClick={() => setOrientation('portrait')}
-                    label={t('orientationPortrait')}
-                  />
-                  <ToggleBtn
-                    active={orientation === 'landscape'}
-                    onClick={() => setOrientation('landscape')}
-                    label={t('orientationLandscape')}
-                  />
-                </div>
-              </section>
-
               <button
                 type="button"
-                onClick={onConvert}
+                onClick={onMerge}
                 disabled={busy}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-4 text-base font-bold text-white shadow-sm transition active:scale-[0.98] hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 px-5 py-4 text-base font-bold text-white shadow-sm transition active:scale-[0.98] hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {busy ? (
                   <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
                 ) : (
-                  <FileDown className="h-5 w-5" aria-hidden />
+                  <Layers className="h-5 w-5" aria-hidden />
                 )}
                 {phase === 'uploading'
                   ? `${tc('uploading')} ${files.length > 1 ? `${currentIndex + 1}/${files.length} · ` : ''}${uploadPct}%`
                   : phase === 'processing'
                     ? tc('processing')
-                    : t('convertButton')}
+                    : t('mergeButton')}
               </button>
               {phase === 'uploading' && (
                 <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
                   <div
-                    className="h-full rounded-full bg-emerald-600 transition-[width] duration-200"
+                    className="h-full rounded-full bg-brand-600 transition-[width] duration-200"
                     style={{ width: `${uploadPct}%` }}
                   />
                 </div>
@@ -240,30 +194,5 @@ export function ImageToPdfClient() {
         </div>
       )}
     </div>
-  );
-}
-
-function ToggleBtn({
-  active,
-  onClick,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`rounded-xl border-2 px-4 py-3 text-sm font-bold transition active:scale-[0.98] ${
-        active
-          ? 'border-emerald-600 bg-emerald-50 text-emerald-800 dark:border-emerald-400 dark:bg-emerald-900/30 dark:text-emerald-200'
-          : 'border-slate-200 bg-white text-slate-700 hover:border-emerald-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200'
-      }`}
-    >
-      {label}
-    </button>
   );
 }

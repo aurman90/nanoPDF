@@ -10,6 +10,7 @@ import {
   CompressionLevelPicker,
 } from '@/components/CompressionLevelPicker';
 import { ResultCard, type CompressResult } from '@/components/ResultCard';
+import { AutoDeleteNotice } from '@/components/AutoDeleteNotice';
 import {
   MAX_FILE_SIZE,
   MAX_FILES,
@@ -137,6 +138,7 @@ export function CompressClient() {
             activeLabel={t('dropzoneActive')}
             onFiles={addFiles}
           />
+          <AutoDeleteNotice />
           <FileList files={files} onRemove={removeAt} />
 
           {files.length > 0 && (

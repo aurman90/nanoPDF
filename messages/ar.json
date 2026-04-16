@@ -14,7 +14,8 @@
     "done": "انتهى",
     "clear": "مسح",
     "reset": "إعادة تعيين",
-    "privacy": "سياسة الخصوصية"
+    "privacy": "سياسة الخصوصية",
+    "autoDeleteNotice": "🔒 تُحذف ملفاتك تلقائياً خلال ساعة"
   },
   "home": {
     "heroTitle": "أدوات PDF خفيفة وسريعة",
@@ -23,6 +24,12 @@
     "compressCardDescription": "قلّل حجم ملفات PDF مع الحفاظ على الجودة. ثلاثة مستويات للاختيار.",
     "imageToPdfCardTitle": "صورة إلى PDF",
     "imageToPdfCardDescription": "حوّل صور JPG وPNG إلى ملف PDF واحد في ثوانٍ.",
+    "mergeCardTitle": "دمج PDF",
+    "mergeCardDescription": "ادمج عدة ملفات PDF في ملف واحد بالترتيب الذي تختاره.",
+    "splitCardTitle": "تقسيم PDF",
+    "splitCardDescription": "استخرج صفحات محددة من ملف PDF إلى ملف جديد.",
+    "rotateCardTitle": "تدوير PDF",
+    "rotateCardDescription": "دوّر صفحات ملف PDF بزاوية ٩٠ أو ١٨٠ أو ٢٧٠.",
     "open": "افتح الأداة",
     "feature1": "يعمل من الجوال",
     "feature2": "بدون تسجيل",
@@ -71,5 +78,51 @@
   "footer": {
     "madeWith": "صُنع بعناية للجوال",
     "copyright": "© 2026 nanoPDF"
+  },
+  "install": {
+    "install": "ثبّت",
+    "ctaAndroid": "ثبّت nanoPDF على جوالك لوصول أسرع",
+    "ctaIos": "لتثبيت التطبيق: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»"
+  },
+  "merge": {
+    "title": "دمج ملفات PDF",
+    "subtitle": "اختر ملفين أو أكثر. سنَدمجها بنفس ترتيب الرفع.",
+    "dropzoneIdle": "اضغط هنا أو اسحب ملفات PDF",
+    "dropzoneActive": "أفلت الملفات هنا",
+    "mergeButton": "ادمج الآن",
+    "errorMinFiles": "اختر ملفين على الأقل",
+    "errorTooMany": "الحد الأقصى 10 ملفات",
+    "errorTooLarge": "الملف أكبر من 50 ميجابايت",
+    "errorWrongType": "يُقبل PDF فقط",
+    "errorGeneric": "حدث خطأ أثناء الدمج"
+  },
+  "split": {
+    "title": "تقسيم ملف PDF",
+    "subtitle": "اختر الصفحات التي تريد استخراجها إلى ملف جديد.",
+    "dropzoneIdle": "اضغط هنا أو اسحب ملف PDF",
+    "dropzoneActive": "أفلت الملف هنا",
+    "pageSpecLabel": "الصفحات المطلوبة",
+    "pageSpecPlaceholder": "مثال: 1-3, 5, 7-9",
+    "pageSpecHelp": "استخدم الفاصلة للفصل والشَّرطة للنطاقات",
+    "splitButton": "قسّم الآن",
+    "errorTooLarge": "الملف أكبر من 50 ميجابايت",
+    "errorWrongType": "يُقبل PDF فقط",
+    "errorInvalidSpec": "تنسيق الصفحات غير صحيح أو خارج النطاق",
+    "errorGeneric": "حدث خطأ أثناء التقسيم",
+    "resultPagesExtracted": "استُخرج {count} من أصل {total} صفحة"
+  },
+  "rotate": {
+    "title": "تدوير صفحات PDF",
+    "subtitle": "اختر زاوية التدوير المطبقة على كل الصفحات.",
+    "dropzoneIdle": "اضغط هنا أو اسحب ملف PDF",
+    "dropzoneActive": "أفلت الملف هنا",
+    "angleTitle": "زاوية التدوير",
+    "angle90": "٩٠° يميناً",
+    "angle180": "١٨٠°",
+    "angle270": "٢٧٠° (أو ٩٠° يساراً)",
+    "rotateButton": "دوّر الآن",
+    "errorTooLarge": "الملف أكبر من 50 ميجابايت",
+    "errorWrongType": "يُقبل PDF فقط",
+    "errorGeneric": "حدث خطأ أثناء التدوير"
   }
 }

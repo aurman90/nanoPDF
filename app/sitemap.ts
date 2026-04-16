@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 
 const base = 'https://nanopdf.app';
 const locales = ['ar', 'en'] as const;
-const routes = ['', '/compress', '/image-to-pdf'];
+const routes = ['', '/compress', '/image-to-pdf', '/merge', '/split', '/rotate'];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

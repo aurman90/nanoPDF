@@ -1,6 +1,7 @@
 export const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 export const MAX_FILES = 5;
 export const MAX_IMAGES = 10;
+export const MAX_MERGE_FILES = 10;
 export const ACCEPTED_PDF_MIME = 'application/pdf';
 export const ACCEPTED_IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 

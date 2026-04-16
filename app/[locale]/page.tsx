@@ -3,6 +3,9 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import {
   FileArchive,
   ImagePlus,
+  Layers,
+  Scissors,
+  RotateCw,
   ChevronLeft,
   ChevronRight,
   Smartphone,
@@ -21,6 +24,44 @@ export default async function HomePage({
 
   const Chevron = locale === 'ar' ? ChevronLeft : ChevronRight;
 
+  const tools = [
+    {
+      href: `/${locale}/compress`,
+      title: t('compressCardTitle'),
+      description: t('compressCardDescription'),
+      icon: <FileArchive className="h-7 w-7" aria-hidden />,
+      gradient: 'from-brand-500 to-indigo-600',
+    },
+    {
+      href: `/${locale}/image-to-pdf`,
+      title: t('imageToPdfCardTitle'),
+      description: t('imageToPdfCardDescription'),
+      icon: <ImagePlus className="h-7 w-7" aria-hidden />,
+      gradient: 'from-emerald-500 to-teal-600',
+    },
+    {
+      href: `/${locale}/merge`,
+      title: t('mergeCardTitle'),
+      description: t('mergeCardDescription'),
+      icon: <Layers className="h-7 w-7" aria-hidden />,
+      gradient: 'from-sky-500 to-blue-600',
+    },
+    {
+      href: `/${locale}/split`,
+      title: t('splitCardTitle'),
+      description: t('splitCardDescription'),
+      icon: <Scissors className="h-7 w-7" aria-hidden />,
+      gradient: 'from-amber-500 to-orange-600',
+    },
+    {
+      href: `/${locale}/rotate`,
+      title: t('rotateCardTitle'),
+      description: t('rotateCardDescription'),
+      icon: <RotateCw className="h-7 w-7" aria-hidden />,
+      gradient: 'from-fuchsia-500 to-pink-600',
+    },
+  ];
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:py-12">
       <section className="animate-fade-up text-center">
@@ -32,25 +73,19 @@ export default async function HomePage({
         </p>
       </section>
 
-      <section className="mt-8 grid gap-4 sm:grid-cols-2 sm:gap-6">
-        <ToolCard
-          href={`/${locale}/compress`}
-          title={t('compressCardTitle')}
-          description={t('compressCardDescription')}
-          icon={<FileArchive className="h-7 w-7" aria-hidden />}
-          cta={t('open')}
-          chevron={<Chevron className="h-4 w-4" />}
-          gradient="from-brand-500 to-indigo-600"
-        />
-        <ToolCard
-          href={`/${locale}/image-to-pdf`}
-          title={t('imageToPdfCardTitle')}
-          description={t('imageToPdfCardDescription')}
-          icon={<ImagePlus className="h-7 w-7" aria-hidden />}
-          cta={t('open')}
-          chevron={<Chevron className="h-4 w-4" />}
-          gradient="from-emerald-500 to-teal-600"
-        />
+      <section className="mt-8 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+        {tools.map((tool) => (
+          <ToolCard
+            key={tool.href}
+            href={tool.href}
+            title={tool.title}
+            description={tool.description}
+            icon={tool.icon}
+            cta={t('open')}
+            chevron={<Chevron className="h-4 w-4" />}
+            gradient={tool.gradient}
+          />
+        ))}
       </section>
 
       <section className="mt-10 grid grid-cols-3 gap-2 text-center">
